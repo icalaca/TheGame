@@ -3,6 +3,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from Engine.Object import *
 
+
 class Layer(QWidget):
     def __init__(self, root_layer=None, width=-1, height=-1, x=0, y=0):
         super().__init__()
@@ -28,7 +29,6 @@ class Layer(QWidget):
         if obj.get_height() == -1:
             obj.set_height(self.height)
         self.objs.append(obj)
-
 
     def draw_objects(self, event, qp):
         for o in self.objs:

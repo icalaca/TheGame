@@ -2,6 +2,7 @@ import sys
 from Engine.Layer import *
 from PyQt5.QtWidgets import QApplication, QWidget
 from PyQt5 import QtCore
+import keyboard
 
 
 class Window(object):
@@ -20,16 +21,17 @@ class Window(object):
         self.update = update
         self.app = QApplication(sys.argv)
         self.w = QWidget()
+        # self.w.keyPressEvent = self.keyPressEvent
         self.width = 800
         self.height = 600
         self.w.resize(self.width, self.height)
         self.w.setWindowTitle(title)
         self.main_layer = Layer(None, self.width, self.height, 0, self.height)
+        # keyboard.on_press(self.keyboardEventReceived)
 
         self.layout = QHBoxLayout()
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.addWidget(self.main_layer)
-
 
         self.main_timer = QTimer()
         self.main_timer.setInterval(self.update_interval)
@@ -42,6 +44,9 @@ class Window(object):
 
     def set_mainlayer(self, main_layer):
         self.main_layer = main_layer
+
+    def set_keypressevent(self, efunc):
+        self.w.keyPressEvent = efunc
 
     def show(self):
         if (sys.flags.interactive != 1) or not hasattr(QtCore, 'PYQT_VERSION'):
