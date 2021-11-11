@@ -9,8 +9,10 @@ class Object(object):
         self.pos_x = pos_x
         self.pos_y = pos_y
         self.keyevent = None
+        self.mousepressevent = None
         self.collision = None
         self.forces = []
+        self.oncollide = None
 
     def set_width(self, width):
         self.width = width
@@ -36,7 +38,10 @@ class Object(object):
         if axis == AXIS_Y:
             self.pos_y += value
         if self.collision is not None:
-            if self.collision.check(self):
+            check = self.collision.check(self)
+            if check is not None:
+                if self.oncollide is not None:
+                    self.oncollide(self, check)
                 if axis == AXIS_X:
                     self.pos_x -= value
                 if axis == AXIS_Y:
@@ -44,6 +49,9 @@ class Object(object):
 
     def set_keyevent(self, keyevent):
         self.keyevent = keyevent
+
+    def set_mousepressevent(self, mousepressevent):
+        self.mousepressevent = mousepressevent
 
     def add_collision(self, col):
         self.collision = col
@@ -56,5 +64,7 @@ class Object(object):
 
     def apply_forces(self):
         for f in self.forces:
+            # if f.id is None and len([f2 for f2 in self.forces if f2 is not None]) != 0:
+            #     return
             if f.iterate():
                 self.move(f.axis, f.mag)

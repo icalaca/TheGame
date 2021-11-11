@@ -20,39 +20,95 @@ def key_event(event):
             o.keyevent(event, o)
 
 
+def mousepress_event(event):
+    for o in inst.objs:
+        if o.mousepressevent is not None:
+            o.mousepressevent(event, o)
+
+
+def projectile_collide(obj1, obj2):
+    inst.objs.remove(obj1)
+    inst.objs.remove(obj2)
+
+
 def player_keyevent(event, obj):
     # if event.key() == Qt.Key_W:
     #     JUMP ANIM
     #     obj.move(AXIS_Y, -1)
     if event.key() == Qt.Key_A:
-        obj.move(AXIS_X, -1)
+        obj.move(AXIS_X, -2)
     if event.key() == Qt.Key_S:
-        obj.move(AXIS_Y, 1)
+        obj.move(AXIS_Y, 2)
     if event.key() == Qt.Key_D:
-        obj.move(AXIS_X, 1)
+        obj.move(AXIS_X, 2)
+    if event.key() == Qt.Key_R:
+        obj.move(AXIS_Y, -50)
+    if event.key() == Qt.Key_Space:
+        proj_col = Collision(inst)
+        projectile = Object(obj.pos_x + obj.width + 1, obj.pos_y, 2, 2)
+        h_comp = Force(AXIS_X, 1, 4, 'h_comp')
+        projectile.add_force(h_comp)
+        projectile.add_collision(proj_col)
+        projectile.oncollide = projectile_collide
+        inst.add_obj(projectile)
+
+
+def player_mousepressevent(event, obj):
+    if event.button() == 1:
+        projectile = Object(obj.pos_x, obj.pos_y, 1, 1)
+        h_comp = Force(AXIS_X, 1, 4, 'h_comp')
+        v_comp = Force(AXIS_Y, 1, 4, 'v_comp')
+    print(event.button())
+    print(event.pos())
+
 
 
 def main():
-    update_interval = 20
+    update_interval = 15
     tick_rate = 0
 
     w = Window('1st Game :D', update, update_interval, tick_rate)
     w.set_keypressevent(key_event)
+    w.set_mousepressevent(mousepress_event)
 
     gravity = Force(AXIS_Y, 1, 3)
 
     ground = Object(0, w.height - 51, w.width - 1, 50)
-    player = Object(60, 430, 32, 32)
+    player = Object(90, 300, 32, 32)
     player.set_keyevent(player_keyevent)
-    box1 = Object(100, 500, 22, 32)
-    box2 = Object(60, 400, 32, 32)
-    box3 = Object(20, 500, 32, 32)
+    player.set_mousepressevent(player_mousepressevent)
+    box2 = Object(90, 400, 150, 32)
+    box3 = Object(20, 420, 8, 128)
+
+    targ1 = Object(400, 500, 16, 48)
+    targ2 = Object(420, 500, 16, 48)
+    targ3 = Object(440, 500, 16, 48)
+    targ4 = Object(460, 500, 16, 48)
+    targ5 = Object(480, 500, 16, 48)
+    targ6 = Object(500, 500, 16, 48)
+    targ7 = Object(520, 500, 16, 48)
+    targ8 = Object(540, 500, 16, 48)
+    targu1 = Object(400, 350, 16, 48)
+    targu2 = Object(420, 350, 16, 48)
+    targu3 = Object(440, 350, 16, 48)
+    targu4 = Object(460, 350, 16, 48)
 
     global inst
     inst = w.mainlayer_instance()
     inst.add_obj(player)
     inst.add_obj(ground)
-    inst.add_obj(box1)
+    inst.add_obj(targ1)
+    inst.add_obj(targ2)
+    inst.add_obj(targ3)
+    inst.add_obj(targ4)
+    inst.add_obj(targ5)
+    inst.add_obj(targ6)
+    inst.add_obj(targ7)
+    inst.add_obj(targ8)
+    inst.add_obj(targu1)
+    inst.add_obj(targu2)
+    inst.add_obj(targu3)
+    inst.add_obj(targu4)
     inst.add_obj(box2)
     inst.add_obj(box3)
     col = Collision(inst)

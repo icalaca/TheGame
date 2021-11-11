@@ -9,5 +9,5 @@ class Collision:
                         o1.pos_x + o1.width > o2.pos_x and \
                         o1.pos_y < o2.pos_y + o2.height and \
                         o1.height + o1.pos_y > o2.pos_y:
-                    return True
-        return False
+                    return o2
+        return None

@@ -2,7 +2,6 @@ import sys
 from Engine.Layer import *
 from PyQt5.QtWidgets import QApplication, QWidget
 from PyQt5 import QtCore
-import keyboard
 
 
 class Window(object):
@@ -47,6 +46,9 @@ class Window(object):
 
     def set_keypressevent(self, efunc):
         self.w.keyPressEvent = efunc
+
+    def set_mousepressevent(self, efunc):
+        self.w.mousePressEvent = efunc
 
     def show(self):
         if (sys.flags.interactive != 1) or not hasattr(QtCore, 'PYQT_VERSION'):
