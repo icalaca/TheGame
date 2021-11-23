@@ -88,6 +88,7 @@ def main():
     arm = Object(player.pos_x, player.pos_y, 50, 1)
     box2 = Object(90, 400, 150, 32)
     box3 = Object(20, 420, 8, 128)
+    box4 = Object(160, 535, 150, 13)
 
     targ1 = Object(400, 500, 16, 48)
     targ2 = Object(420, 500, 16, 48)
@@ -121,6 +122,7 @@ def main():
     inst.add_obj(targu4)
     inst.add_obj(box2)
     inst.add_obj(box3)
+    inst.add_obj(box4)
     col = Collision(inst)
     player.add_collision(col)
     player.add_force(gravity)
