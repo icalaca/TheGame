@@ -12,6 +12,7 @@ class Object(object):
         self.mousepressevent = None
         self.collision = None
         self.forces = []
+        self.dforces = []
         self.oncollide = None
 
     def set_width(self, width):
@@ -62,9 +63,19 @@ class Object(object):
     def add_force(self, force):
         self.forces.append(force)
 
+    def add_dforce(self, f):
+        self.dforces.append(f)
+
     def apply_forces(self):
         for f in self.forces:
-            # if f.id is None and len([f2 for f2 in self.forces if f2 is not None]) != 0:
-            #     return
-            if f.iterate():
+            if f.id in [fd[0] for fd in self.dforces]:
+                continue
+            if f.it == -1:
                 self.move(f.axis, f.mag)
+                continue
+            if f.iterate():
+                self.forces.remove(f)
+                for fd in self.dforces:
+                    if fd[1] is f:
+                        self.dforces.remove(fd)
+            self.move(f.axis, f.mag)

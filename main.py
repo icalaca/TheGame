@@ -1,4 +1,5 @@
 import sys
+import math
 from Engine.Window import *
 from Engine.Layer import *
 from Engine.Object import *
@@ -32,9 +33,11 @@ def projectile_collide(obj1, obj2):
 
 
 def player_keyevent(event, obj):
-    # if event.key() == Qt.Key_W:
-    #     JUMP ANIM
-    #     obj.move(AXIS_Y, -1)
+    if event.key() == Qt.Key_W:
+        jump = Force(AXIS_Y, 15, -3, 'jump')
+        dforce = ('gravity', jump)
+        obj.add_dforce(dforce)
+        obj.add_force(jump)
     if event.key() == Qt.Key_A:
         obj.move(AXIS_X, -2)
     if event.key() == Qt.Key_S:
@@ -46,7 +49,7 @@ def player_keyevent(event, obj):
     if event.key() == Qt.Key_Space:
         proj_col = Collision(inst)
         projectile = Object(obj.pos_x + obj.width + 1, obj.pos_y, 2, 2)
-        h_comp = Force(AXIS_X, 1, 4, 'h_comp')
+        h_comp = Force(AXIS_X, -1, 4, 'h_comp')
         projectile.add_force(h_comp)
         projectile.add_collision(proj_col)
         projectile.oncollide = projectile_collide
@@ -62,6 +65,10 @@ def player_mousepressevent(event, obj):
     print(event.pos())
 
 
+def arm_mousepressevent(event, obj):
+    r = 50
+    for i in range(360):
+        x = r*math.cos(math.radians(i))
 
 def main():
     update_interval = 15
@@ -71,12 +78,14 @@ def main():
     w.set_keypressevent(key_event)
     w.set_mousepressevent(mousepress_event)
 
-    gravity = Force(AXIS_Y, 1, 3)
+    gravity = Force(AXIS_Y, -1, 3, 'gravity')
 
     ground = Object(0, w.height - 51, w.width - 1, 50)
     player = Object(90, 300, 32, 32)
     player.set_keyevent(player_keyevent)
     player.set_mousepressevent(player_mousepressevent)
+
+    arm = Object(player.pos_x, player.pos_y, 50, 1)
     box2 = Object(90, 400, 150, 32)
     box3 = Object(20, 420, 8, 128)
 
@@ -96,6 +105,7 @@ def main():
     global inst
     inst = w.mainlayer_instance()
     inst.add_obj(player)
+    # inst.add_obj(arm)
     inst.add_obj(ground)
     inst.add_obj(targ1)
     inst.add_obj(targ2)
