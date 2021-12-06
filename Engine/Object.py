@@ -14,6 +14,7 @@ class Object(object):
         self.forces = []
         self.dforces = []
         self.oncollide = None
+        self.name = ''
 
     def set_width(self, width):
         self.width = width
