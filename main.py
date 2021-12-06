@@ -9,6 +9,11 @@ from PyQt5.QtWidgets import QApplication
 
 inst = None
 
+def player_colision(obj1, obj2):
+    if(obj2.name == 'potion'):
+        print('colisão com a poção')
+        inst.objs.remove(obj2)
+    return
 
 def update(layer):
     for o in inst.objs:
@@ -95,6 +100,7 @@ def main():
     player.set_keyevent(player_keyevent)
     player.set_mousepressevent(player_mousepressevent)
     player.name = 'player'
+    player.oncollide = player_colision
 
     arm = Object(player.pos_x, player.pos_y, 50, 1)
     
