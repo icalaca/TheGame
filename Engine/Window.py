@@ -47,6 +47,9 @@ class Window(object):
     def set_keypressevent(self, efunc):
         self.w.keyPressEvent = efunc
 
+    def set_keyreleaseevent(self, efunc):
+        self.w.keyReleaseEvent = efunc
+
     def set_mousepressevent(self, efunc):
         self.w.mousePressEvent = efunc
 

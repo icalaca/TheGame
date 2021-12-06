@@ -3,18 +3,22 @@ AXIS_Y = 1
 
 
 class Object(object):
-    def __init__(self, pos_x, pos_y, width, height):
+    def __init__(self, pos_x, pos_y, width, height, id=None):
         self.width = width
         self.height = height
         self.pos_x = pos_x
         self.pos_y = pos_y
-        self.keyevent = None
+        self.keypressevent = None
+        self.keyreleaseevent = None
         self.mousepressevent = None
         self.collision = None
         self.forces = []
         self.dforces = []
         self.oncollide = None
-        self.name = ''
+        self.id = id
+
+        self.firstrelease = False
+        self.keylist = []
 
     def set_width(self, width):
         self.width = width
@@ -49,8 +53,11 @@ class Object(object):
                 if axis == AXIS_Y:
                     self.pos_y -= value
 
-    def set_keyevent(self, keyevent):
-        self.keyevent = keyevent
+    def set_keypressevent(self, keypressevent):
+        self.keypressevent = keypressevent
+
+    def set_keyreleaseevent(self, keyreleaseevent):
+        self.keyreleaseevent = keyreleaseevent
 
     def set_mousepressevent(self, mousepressevent):
         self.mousepressevent = mousepressevent
