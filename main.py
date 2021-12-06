@@ -9,11 +9,20 @@ from PyQt5.QtWidgets import QApplication
 
 inst = None
 
+life = 3
+
 def player_colision(obj1, obj2):
+    global life
     if(obj2.name == 'potion'):
         print('colisão com a poção')
+        life += 1
         inst.objs.remove(obj2)
-    return
+    if(obj2.name == 'enemy'):
+        print('enemy')
+        life -= 1
+        if life == 0:
+            print('perdeu')
+        
 
 def update(layer):
     for o in inst.objs:
@@ -32,18 +41,25 @@ def mousepress_event(event):
             o.mousepressevent(event, o)
 
 
+def create_potion(obj):
+    gravity = Force(AXIS_Y, -1, 3, 'gravity')
+    colision = Collision(inst)
+    
+    
+    potion = Object(obj.pos_x, obj.pos_y, 16, 32)
+    potion.name = 'potion'
+    potion.add_force(gravity)
+    potion.add_collision(colision)
+    inst.add_obj(potion)
+
 def projectile_collide(obj1, obj2):
     global inst
     inst.objs.remove(obj1)
-    inst.objs.remove(obj2)
+    
     if(obj2.name == 'enemy'):
-        gravity = Force(AXIS_Y, -1, 3, 'gravity')
-        colision = Collision(inst)
-        potion = Object(obj2.pos_x, obj2.pos_y, 16, 32)
-        potion.name = 'potion'
-        potion.add_force(gravity)
-        potion.add_collision(colision)
-        inst.add_obj(potion)
+        inst.objs.remove(obj2)
+        create_potion(obj2)
+    
         
 
 
