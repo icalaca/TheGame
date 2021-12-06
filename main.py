@@ -1,5 +1,6 @@
 import sys
 import math
+import random
 from Engine.Window import *
 from Engine.Layer import *
 from Engine.Object import *
@@ -58,7 +59,8 @@ def projectile_collide(obj1, obj2):
     
     if(obj2.name == 'enemy'):
         inst.objs.remove(obj2)
-        create_potion(obj2)
+        if random.randint(0, 10) < 5:
+            create_potion(obj2)
     
         
 
@@ -123,6 +125,13 @@ def main():
     box2 = Object(90, 400, 150, 32)
     box3 = Object(20, 420, 8, 128)
     box4 = Object(160, 535, 150, 13)
+    box5 = Object(150, 535, 150, 13)
+    
+    # MAPA
+    box6 = Object(230, 500, 100, 32)
+    box7 = Object(360, 400, 100, 32)
+    box8 = Object(490, 300, 100, 32)
+    box9 = Object(520, 200, 100, 32)
 
     targ1 = Object(400, 500, 16, 48)
     targ1.name = 'enemy'
@@ -169,6 +178,11 @@ def main():
     inst.add_obj(box2)
     inst.add_obj(box3)
     inst.add_obj(box4)
+    inst.add_obj(box6)
+    inst.add_obj(box7)
+    inst.add_obj(box8)
+    inst.add_obj(box9)
+    
     col = Collision(inst)
     # player.add_collision(col)
     # player.add_force(gravity)
