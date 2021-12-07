@@ -9,8 +9,8 @@ from Engine.Physics.Force import *
 from PyQt5.QtWidgets import QApplication
 #import keyboard
 
-
-shoot_cooldown = 50
+cd = 50
+shoot_cooldown = cd
 able_to_shoot = True
 dx = 0
 dy = 0
@@ -56,7 +56,12 @@ def animate():
                 frame += 1
                 if frame > 10:
                     frame = 1
-                obj.set_img('char/dead/Dead ('+str(frame)+').png')    
+                obj.set_img('char/dead/Dead ('+str(frame)+').png')
+            elif obj.state == 'shot':
+                frame += 1
+                if frame > 4:
+                    frame = 1
+                obj.set_img('char/shoot/Shoot ('+str(frame)+').png')   
 def update(layer):
     animate()
     global able_to_shoot
@@ -69,6 +74,7 @@ def update(layer):
             if shoot_cooldown <= 0:
                 able_to_shoot = True
     for o in inst.objs:
+        print(o.id)
         if o.id == 'player':
             if len(keys_pressed) == 0:
                 if jumps == 0:
@@ -114,19 +120,51 @@ def update(layer):
                     # dy -= PLAYER_SPEED
             if Qt.Key_S in keys_pressed:
                 dy += PLAYER_SPEED
-            if Qt.Key_Space in keys_pressed:
+            if Qt.Key_Up in keys_pressed:
                 
                 if able_to_shoot:
+                    o.state = 'shot'
                     proj_col = Collision(inst)
-                    projectile = Object(o.pos_x + o.width + 1, o.pos_y, 20, 20, 'projectile')
+                    projectile = Object(o.pos_x, o.pos_y-100, 20, 20, 'projectile')
                     projectile.state = 'shot'
-                    h_comp = Force(AXIS_X, -1, 4, 'h_comp')
+                    h_comp = Force(AXIS_Y, 1, -8, 'h_comp')
                     projectile.add_force(h_comp)
                     projectile.add_collision(proj_col)
                     projectile.oncollide = projectile_collide
                     able_to_shoot = False
-                    shoot_cooldown = 50
+                    shoot_cooldown = cd
                     inst.add_obj(projectile)
+            if Qt.Key_Left in keys_pressed:
+                
+                if able_to_shoot:
+                    print('entrou')
+                    o.state = 'shot'
+                    proj_col = Collision(inst)
+                    projectile = Object(o.pos_x - 25, o.pos_y, 20, 20, 'projectile')
+                    projectile.state = 'shot'
+                    h_comp = Force(AXIS_X, 1, 8, 'i_comp')
+                    projectile.add_force(h_comp)
+                    projectile.add_collision(proj_col)
+                    projectile.oncollide = projectile_collide
+                    able_to_shoot = False
+                    shoot_cooldown = cd
+                    projectile.move(AXIS_X, -100)
+                    inst.add_obj(projectile)
+            if Qt.Key_Right in keys_pressed:
+                
+                if able_to_shoot:
+                    o.state = 'shot'
+                    proj_col = Collision(inst)
+                    projectile = Object(o.pos_x + o.width + 1, o.pos_y, 20, 20, 'projectile')
+                    projectile.state = 'shot'
+                    h_comp = Force(AXIS_X, -1, 8, 'h_comp')
+                    projectile.add_force(h_comp)
+                    projectile.add_collision(proj_col)
+                    projectile.oncollide = projectile_collide
+                    able_to_shoot = False
+                    shoot_cooldown = cd
+                    inst.add_obj(projectile)
+                    
                 
             if Qt.Key_J in keys_pressed:
                 for o in inst.objs:
@@ -137,10 +175,12 @@ def update(layer):
 
             if Qt.Key_Q in keys_pressed:
                 sys.exit()
-        o.move(AXIS_Y, dy)
-        o.move(AXIS_X, dx)
-        dx = 0
-        dy = 0
+            o.move(AXIS_Y, dy)
+            o.move(AXIS_X, dx)
+            dx = 0
+            dy = 0
+        if o.id == 'projectile':
+            print
         o.apply_forces()
         
 
@@ -182,7 +222,10 @@ def mousepress_event(event):
         if o.mousepressevent is not None:
             o.mousepressevent(event, o)
 
-
+def create_item(obj):
+    item = Object(obj.pos_x, obj.pos_y, 16, 16, 'item')
+    item.set_img('item.png')
+    inst.add_obj(item)
 def create_potion(obj):
     # gravity = Force(AXIS_Y, -1, 3, 'gravity')
     # colision = Collision(inst)
@@ -196,15 +239,17 @@ def create_potion(obj):
 
 def projectile_collide(obj1, obj2):
     global inst
+    print('teste')
     inst.objs.remove(obj1)
     if obj2.id == 'enemy':
         inst.objs.remove(obj2)
-        create_potion(obj2)
+        create_item(obj2)
 
 
 def player_collide(obj1, obj2):
     global jumps
     global life
+    global cd
 
     if (obj2.id == 'platform' or obj2.id == 'ground' or obj2.id == 'obstacle') and jumps > 0:
         if obj2.id == 'ground':
@@ -216,6 +261,10 @@ def player_collide(obj1, obj2):
         print('colisão com a poção')
         life += 1
         inst.objs.remove(obj2)
+    if obj2.id == 'item':
+        print('item')
+        cd = cd/2
+        inst.objs.remove(obj2)
     if obj2.id == 'enemy':
         print('enemy')
         life -= 1
@@ -223,79 +272,6 @@ def player_collide(obj1, obj2):
         if life == 0:
             sys.exit()
 
-
-def player_keypressevent(event, obj):
-    global jumps
-    global jump_limit
-    h_collision = False
-    if event.key() == Qt.Key_W:
-        if jumps < jump_limit:
-            print('jump')
-            jump = Force(AXIS_Y, 15, -3, 'jump')
-            dforce = ('gravity', jump)
-            obj.add_dforce(dforce)
-            obj.add_force(jump)
-            jumps += 1
-    if event.key() == Qt.Key_A:
-        if obj.pos_x <= 0:
-            return
-        obj.move(AXIS_X, -10)
-
-    if event.key() == Qt.Key_S:
-        obj.move(AXIS_Y, 3)
-    if event.key() == Qt.Key_D:
-        if obj.pos_x >= inst.width*0.5:
-            for o in inst.objs:
-                if o.id != 'player' and o.id != 'potion':
-                    o.pos_x -= 3
-                    if obj.collision is not None:
-                        check = obj.collision.check(obj)
-                        if check is not None:
-                            h_collision = True
-                            o.pos_x += 3
-                            break
-                    o.pos_x += 3
-            if not h_collision:
-                for o in inst.objs:
-                    if o.id != 'player':
-                        o.move(AXIS_X, -3)
-            else:
-                h_collision = False
-
-        else:
-            obj.move(AXIS_X, 10)
-    if event.key() == Qt.Key_Space:
-        
-        proj_col = Collision(inst)
-        projectile = Object(obj.pos_x + obj.width + 1, obj.pos_y, 2, 2)
-        h_comp = Force(AXIS_X, -1, 4, 'h_comp')
-        projectile.add_force(h_comp)
-        projectile.add_collision(proj_col)
-        projectile.oncollide = projectile_collide
-        inst.add_obj(projectile)
-    if event.key() == Qt.Key_J:
-        for o in inst.objs:
-            o.move(AXIS_X, 50)
-    if event.key() == Qt.Key_K:
-        for o in inst.objs:
-            o.move(AXIS_X, -50)
-
-    if event.key() == Qt.Key_Q:
-        sys.exit()
-
-
-def player_keyreleaseevent(event, obj):
-    print('release')
-    pass
-
-
-def player_mousepressevent(event, obj):
-    if event.button() == 1:
-        projectile = Object(obj.pos_x, obj.pos_y, 1, 1)
-        h_comp = Force(AXIS_X, 1, 4, 'h_comp')
-        v_comp = Force(AXIS_Y, 1, 4, 'v_comp')
-    print(event.button())
-    print(event.pos())
 
 
 def arm_mousepressevent(event, obj):
@@ -415,7 +391,7 @@ def main():
     player = Object(90, 300, 32, 32, 'player')
     player.set_keypressevent(keyPressEvent)
     player.set_keyreleaseevent(keyReleaseEvent)
-    player.set_mousepressevent(player_mousepressevent)
+    # player.set_mousepressevent(player_mousepressevent)
     player.set_img("char/idle/Idle (1).png")
     arm = Object(player.pos_x, player.pos_y, 50, 1)
 
