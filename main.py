@@ -6,7 +6,7 @@ from Engine.Object import *
 from Engine.Physics.Collision import *
 from Engine.Physics.Force import *
 from PyQt5.QtWidgets import QApplication
-# import keyboard
+#import keyboard
 
 inst = None
 jump_limit = 2
@@ -17,7 +17,22 @@ life = 3
 def update(layer):
     for o in inst.objs:
         o.apply_forces()
+        
+def keyPressEvent(self, event):
+    self.firstrelease = True
+    astr = "pressed: " + str(event.key())
+    self.keylist.append(astr)
 
+def keyReleaseEvent(self, event):
+    if self.firstrelease == True: 
+        self.processmultikeys(self.keylist)
+
+    self.firstrelease = False
+
+    del self.keylist[-1]
+
+def processmultikeys(self,keyspressed):
+    print(keyspressed)
 
 def key_pressevent(event):
     for o in inst.objs:
@@ -58,7 +73,8 @@ def projectile_collide(obj1, obj2):
 def player_collide(obj1, obj2):
     global jumps
     global life
-    if obj2.id == 'ground' and jumps > 0:
+    
+    if (obj2.id == 'platform' or obj2.id == 'ground' or obj2.id == 'obstacle') and jumps > 0:
         jumps = 0
     if obj2.id == 'potion':
         print('colisão com a poção')
@@ -85,7 +101,7 @@ def player_keypressevent(event, obj):
     if event.key() == Qt.Key_A:
         if obj.pos_x <= 0:
             return
-        obj.move(AXIS_X, -3)
+        obj.move(AXIS_X, -10)
         
     if event.key() == Qt.Key_S:
         obj.move(AXIS_Y, 3)
@@ -93,9 +109,9 @@ def player_keypressevent(event, obj):
         if obj.pos_x >= inst.width*0.5:
             for o in inst.objs:
                 if o.id != 'player':
-                    o.move(AXIS_X, -3)
+                    o.move(AXIS_X, -10)
         else:
-            obj.move(AXIS_X, 3)
+            obj.move(AXIS_X, 10)
     if event.key() == Qt.Key_Space:
         proj_col = Collision(inst)
         projectile = Object(obj.pos_x + obj.width + 1, obj.pos_y, 2, 2)
@@ -106,10 +122,13 @@ def player_keypressevent(event, obj):
         inst.add_obj(projectile)
     if event.key() == Qt.Key_J:
         for o in inst.objs:
-            o.move(AXIS_X, 3)
+            o.move(AXIS_X, 50)
     if event.key() == Qt.Key_K:
         for o in inst.objs:
-            o.move(AXIS_X, -3)
+            o.move(AXIS_X, -50)
+        
+    if event.key() == Qt.Key_Q:
+        sys.exit()
 
 
 def player_keyreleaseevent(event, obj):
@@ -131,8 +150,50 @@ def arm_mousepressevent(event, obj):
         x = r*math.cos(math.radians(i))
 
 def first_level(window):
-    ground = Object(0, window.height - 51, window.width+ 1000, 50, 'ground')
+    
+    # CHÃO DO PRIMEIRO NIVEL
+    ground = Object(0, window.height - 51, window.width+ 1400, 50, 'ground')
+    ground2 = Object(ground.width + 50, window.height - 51, window.width/3 + 100, 50, 'ground')
+    ground3 = Object(ground.width + 50 + ground2.width + 50, window.height - 51, window.width+ 1400, 50, 'ground')
+    ground4 = Object(ground.width + 50 + ground2.width + 50 + ground3.width + 50, window.height - 51, window.width+ 1400, 50, 'ground')
     inst.add_obj(ground)
+    inst.add_obj(ground2)
+    inst.add_obj(ground3)
+    inst.add_obj(ground4)
+    
+    
+    
+    # PLATAFORMAS 
+    platform = Object(760, 430, 100, 20, 'platform')
+    platform2 = Object(ground.width + 50 + ground2.width/3, 430, 100, 20, 'platform')
+    platform3 = Object(platform2.pos_x + platform2.width, 350, 270, 20, 'platform')
+    platform4 = Object(platform3.pos_x + platform3.width + 50, platform3.pos_y, 170, 20, 'platform')
+    platform5 = Object(platform4.pos_x + platform4.width - 50, platform2.pos_y, 50, 20 )
+    inst.add_obj(platform)
+    inst.add_obj(platform2)
+    inst.add_obj(platform3)
+    inst.add_obj(platform4)
+    inst.add_obj(platform5)
+    obstacle = Object(900, window.height-100, 30, 100, 'obstacle')
+    obstacle2 = Object(1300, window.height-120, 30, 100, 'obstacle')
+    obstacle3 = Object(1700, window.height-140, 30, 100, 'obstacle')
+    
+    targ1 = Object(700, 500, 16, 48, 'enemy')
+    
+    inst.add_obj(targ1)
+    targ2 = Object(1100, 500, 16, 48, 'enemy')
+    inst.add_obj(targ2)
+    
+    targ3 = Object(1400, 500, 16, 48, 'enemy')
+    targ4 = Object(1450, 500, 16, 48, 'enemy')
+    
+    inst.add_obj(targ3)
+    inst.add_obj(targ4)
+    inst.add_obj(obstacle)
+    inst.add_obj(obstacle2)
+    inst.add_obj(obstacle3)
+    
+    
 def main():
     update_interval = 30
     tick_rate = 0
@@ -151,22 +212,8 @@ def main():
     player.set_mousepressevent(player_mousepressevent)
 
     arm = Object(player.pos_x, player.pos_y, 50, 1)
-    box2 = Object(90, 400, 150, 32, 'ground')
-    box3 = Object(20, 420, 8, 128)
-    box4 = Object(160, 535, 150, 13, 'ground')
+    
 
-    targ1 = Object(400, 500, 16, 48, 'enemy')
-    targ2 = Object(420, 500, 16, 48, 'enemy')
-    targ3 = Object(440, 500, 16, 48, 'enemy')
-    targ4 = Object(460, 500, 16, 48, 'enemy')
-    targ5 = Object(480, 500, 16, 48, 'enemy')
-    targ6 = Object(500, 500, 16, 48, 'enemy')
-    targ7 = Object(520, 500, 16, 48, 'enemy')
-    targ8 = Object(540, 500, 16, 48, 'enemy')
-    targu1 = Object(400, 350, 16, 48, 'enemy')
-    targu2 = Object(420, 350, 16, 48, 'enemy')
-    targu3 = Object(440, 350, 16, 48, 'enemy')
-    targu4 = Object(460, 350, 16, 48, 'enemy')
 
     global inst
     inst = w.mainlayer_instance()
@@ -174,21 +221,7 @@ def main():
     # inst.add_obj(arm)
     
     first_level(inst)
-    # inst.add_obj(targ1)
-    # inst.add_obj(targ2)
-    # inst.add_obj(targ3)
-    # inst.add_obj(targ4)
-    # inst.add_obj(targ5)
-    # inst.add_obj(targ6)
-    # inst.add_obj(targ7)
-    # inst.add_obj(targ8)
-    # inst.add_obj(targu1)
-    # inst.add_obj(targu2)
-    # inst.add_obj(targu3)
-    # inst.add_obj(targu4)
-    # inst.add_obj(box2)
-    # inst.add_obj(box3)
-    # inst.add_obj(box4)
+    
     col = Collision(inst)
     player.add_collision(col)
     player.add_force(gravity)
