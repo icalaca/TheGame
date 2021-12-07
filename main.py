@@ -414,15 +414,15 @@ def first_level(window):
     # PLATAFORMAS
     platform = Object(760, 430, 100, 20,inst, 'platform', img='Group.png')
     platform2 = Object(ground.width + 50 + ground2.width /
-                       3, 430, 100, 20, inst,'platform', img='Group.png')
+                       3, 380, 100, 20, inst,'platform', img='Group.png')
     platform3 = Object(platform2.pos_x + platform2.width,
                        350, 270, 20,inst, 'platform', img='Group.png')
     platform4 = Object(platform3.pos_x + platform3.width +
                        50, 200, 170, 20,inst, 'platform', img='Group.png')
     platform5 = Object(platform4.pos_x + platform4.width -
-                       50, platform2.pos_y, 50, 20,inst, 'platform', img='Group.png')
+                       50, 150, 505, 20,inst, 'platform', img='Group.png')
     platform6 = Object(platform3.pos_x + 3 * platform3.width,
-                       200, 100, 20, inst,'platform', img='Group.png')
+                       200, 300, 20, inst,'platform', img='Group.png')
     platform7 = Object(ground3.pos_x + ground3.width/2,
                        platform6.pos_y - 50, 50, 20, inst,'platform', img='Group.png')
     platform8 = Object(platform7.pos_x + platform7.width,
