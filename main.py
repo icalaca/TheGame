@@ -74,6 +74,7 @@ def player_collide(obj1, obj2):
 def player_keypressevent(event, obj):
     global jumps
     global jump_limit
+    h_collision = False
     if event.key() == Qt.Key_W:
         if jumps < jump_limit:
             print('jump')
@@ -89,8 +90,21 @@ def player_keypressevent(event, obj):
     if event.key() == Qt.Key_D:
         if obj.pos_x >= inst.width*0.5:
             for o in inst.objs:
-                if o.id != 'player':
-                    o.move(AXIS_X, -3)
+                if o.id != 'player' and o.id != 'potion':
+                    o.pos_x -= 3
+                    if obj.collision is not None:
+                        check = obj.collision.check(obj)
+                        if check is not None:
+                            h_collision = True
+                            o.pos_x += 3
+                            break
+                    o.pos_x += 3
+            if not h_collision:
+                for o in inst.objs:
+                    if o.id != 'player':
+                        o.move(AXIS_X, -3)
+            else:
+                h_collision = False
         else:
             obj.move(AXIS_X, 3)
     if event.key() == Qt.Key_Space:
