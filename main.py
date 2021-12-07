@@ -112,7 +112,7 @@ def update(layer):
                 o.state = 'jump'
                 if jumps < jump_limit:
                     print('jump')
-                    jump = Force(AXIS_Y, 20, -7, 'jump')
+                    jump = Force(AXIS_Y, 10, -10, 'jump')
                     dforce = ('gravity', jump)
                     o.add_dforce(dforce)
                     o.add_force(jump)
@@ -385,7 +385,7 @@ def main():
     w.set_keyreleaseevent(key_releaseevent)
     w.set_mousepressevent(mousepress_event)
 
-    gravity = Force(AXIS_Y, -1, 5, 'gravity')
+    gravity = Force(AXIS_Y, -1, 10, 'gravity')
 
     ground = Object(0, w.height - 51, w.width + 1000, 50, 'ground')
     player = Object(90, 300, 32, 32, 'player')
