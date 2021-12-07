@@ -117,6 +117,9 @@ def update(layer):
                     o.state = 'runRight'
                 if o.pos_x >= inst.width*0.5:
                     for obj in inst.objs:
+                        if obj.id == 'life':
+                            print('liiiiffee')
+                            continue
                         if obj.id != 'player' and obj.id != 'potion' and obj.id != 'item1' and obj.id != 'item2':
                             obj.pos_x -= 3
                             if o.collision is not None:
@@ -476,6 +479,7 @@ def first_level(window):
     targ16.add_force(gravity)
     targ17.add_force(gravity)
 
+
     inst.add_obj(targ3)
     inst.add_obj(targ4)
     inst.add_obj(targ5)
@@ -496,6 +500,8 @@ def first_level(window):
 
 def main():
     global inst
+    global life
+    global score
     
     
     update_interval = 40
@@ -517,7 +523,10 @@ def main():
     player.set_img("char/idle/Idle (1).png")
     arm = Object(player.pos_x, player.pos_y, 50, 1, inst)
 
-    
+    lifetxt = Object(10, 15, 100, 50, inst, id='life')
+    lifetxt.set_text('Lifes: ' + str(life))
+    lifetxt.set_textsize(12)
+    inst.add_obj(lifetxt)
     
     inst.add_obj(player)
     # inst.add_obj(arm)

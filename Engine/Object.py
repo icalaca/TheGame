@@ -21,6 +21,8 @@ class Object(object):
         self.parent = parent
         self.side = -1
         self.timer = 20
+        self.text = None
+        self.text_size = 12
 
         self.firstrelease = False
         self.keylist = []
@@ -45,6 +47,12 @@ class Object(object):
 
     def set_img(self, img):
         self.img = img
+
+    def set_text(self, txt):
+        self.text = txt
+
+    def set_textsize(self, size):
+        self.text_size = size
 
     def move(self, axis, value):
         

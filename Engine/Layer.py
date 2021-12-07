@@ -36,6 +36,11 @@ class Layer(QWidget):
                 if o.id == 'ground' or o.id == 'platform' or o.id == 'obstacle':
                     qp.drawImage(o.pos_x, o.pos_y, QImage(o.img).scaledToWidth(o.width))
                 qp.drawImage(o.pos_x, o.pos_y, QImage(o.img).scaledToWidth(48))
+            elif o.text is not None:
+                font = QFont()
+                font.setPixelSize(o.text_size)
+                qp.setFont(font)
+                qp.drawText(o.pos_x, o.pos_y, o.text)
             else:
                 qp.drawRect(o.pos_x, o.pos_y, o.width, o.height)
             # qp.drawImage(x, y, QImage('imgs/entities/%s.png' % (e.name.lower())).scaledToWidth(32))
