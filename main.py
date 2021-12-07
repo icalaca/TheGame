@@ -24,6 +24,7 @@ life = 3
 firstrelease = False
 PLAYER_SPEED = 10
 frame = 1
+gameover = False
 def animate():
     global frame
     for obj in inst.objs:
@@ -82,6 +83,7 @@ def update(layer):
     global shoot_cooldown
     global jump_limit
     global jumps
+    global gameover
     h_collision = False
     if not able_to_shoot:
             shoot_cooldown -= 1    
@@ -118,7 +120,6 @@ def update(layer):
                 if o.pos_x >= inst.width*0.5:
                     for obj in inst.objs:
                         if obj.id == 'life':
-                            print('liiiiffee')
                             continue
                         if obj.id != 'player' and obj.id != 'potion' and obj.id != 'item1' and obj.id != 'item2':
                             obj.pos_x -= 3
@@ -225,6 +226,9 @@ def update(layer):
 
             if Qt.Key_Q in keys_pressed:
                 sys.exit()
+            if Qt.Key_Enter in keys_pressed:
+                if gameover:
+                    sys.exit()
             o.move(AXIS_Y, dy)
             o.move(AXIS_X, dx)
             dx = 0
@@ -309,6 +313,10 @@ def projectile_collide(obj1, obj2):
         inst.objs.remove(obj1)
     if obj2.id == 'enemy':
         score += 100
+        for o in inst.objs:
+            if o.id == 'score':
+                o.set_text('Score: ' + str(score))
+                break
         inst.objs.remove(obj2)
         rand = random.randint(0, 100)
         if rand < 5:
@@ -330,6 +338,7 @@ def player_collide(obj1, obj2):
     global jump_limit
     global life
     global cd
+    global gameover
 
     # print(obj1.id)
     if (obj2.id == 'platform' or obj2.id == 'ground' or obj2.id == 'obstacle') and jumps > 0:
@@ -353,9 +362,17 @@ def player_collide(obj1, obj2):
     if obj2.id == 'enemy':
         # print('enemy')
         life -= 1
+        for o in inst.objs:
+            if o.id == 'life':
+                o.set_text('Lifes: ' + str(life))
+                break
         inst.objs.remove(obj2)
         if life == 0:
-            sys.exit()
+            gameover = True
+            gameovertxt = Object(inst.width//2, inst.height//2, 100, 50, inst, id='gameover')
+            gameovertxt.set_text('GAME OVER! PRESS ENTER TO EXIT.')
+            gameovertxt.set_textsize(30)
+            # sys.exit()
 
 
 
@@ -526,7 +543,13 @@ def main():
     lifetxt = Object(10, 15, 100, 50, inst, id='life')
     lifetxt.set_text('Lifes: ' + str(life))
     lifetxt.set_textsize(12)
+
+    scoretxt = Object(10, 30, 100, 50, inst, id='score')
+    scoretxt.set_text('Score: ' + str(score))
+    scoretxt.set_textsize(12)
+
     inst.add_obj(lifetxt)
+    inst.add_obj(scoretxt)
     
     inst.add_obj(player)
     # inst.add_obj(arm)
