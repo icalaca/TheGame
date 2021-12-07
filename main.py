@@ -22,7 +22,7 @@ jump_limit = 1
 jumps = 0
 life = 3
 firstrelease = False
-PLAYER_SPEED = 10
+PLAYER_SPEED = 8
 frame = 1
 def animate():
     global frame
@@ -543,7 +543,7 @@ def main():
     gravity = Force(AXIS_Y, -1, 10, 'gravity')
 
     
-    player = Object(90, 300, 48, 48,inst, 'player')
+    player = Object(90, 300, 32, 48,inst, 'player')
     player.set_keypressevent(keyPressEvent)
     player.set_keyreleaseevent(keyReleaseEvent)
     # player.set_mousepressevent(player_mousepressevent)
