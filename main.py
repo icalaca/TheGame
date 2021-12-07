@@ -92,7 +92,7 @@ def update(layer):
     for o in inst.objs:
         if o.id == 'enemy':
             if o.timer == 0:
-                o.timer = 10
+                o.timer = random.randint(17, 35)
                 o.side = o.side * -1
             if o.side == -1:
                 o.move(AXIS_X, -3)
@@ -122,6 +122,7 @@ def update(layer):
                         if obj.id == 'life':
                             continue
                         if obj.id != 'player' and obj.id != 'potion' and obj.id != 'item1' and obj.id != 'item2':
+
                             obj.pos_x -= 3
                             if o.collision is not None:
                                 check = o.collision.check(o)
@@ -135,7 +136,7 @@ def update(layer):
                                     h_collision = True
                                     obj.pos_x += 3
                                     break
-                            obj.pos_x += 3
+                                obj.pos_x += 3
                     if not h_collision:
                         for obj in inst.objs:
                             if obj.id != 'player':
@@ -163,7 +164,7 @@ def update(layer):
                     proj_col = Collision(inst)
                     projectile = Object(o.pos_x, o.pos_y + 10, 20, 20, inst, 'projectile')
                     projectile.state = 'shotUp'
-                    h_comp = Force(AXIS_Y, -1, -8, 'h_comp')
+                    h_comp = Force(AXIS_Y, -1, 8, 'h_comp')
                     projectile.add_force(h_comp)
                     projectile.add_collision(proj_col)
                     projectile.oncollide = projectile_collide
@@ -178,7 +179,7 @@ def update(layer):
                     proj_col = Collision(inst)
                     projectile = Object(o.pos_x, o.pos_y, 20, 20,inst, 'projectile')
                     projectile.state = 'shotLeft'
-                    h_comp = Force(AXIS_X, -10, -8, 'i_comp')
+                    h_comp = Force(AXIS_X, -1, -8, 'i_comp')
                     projectile.add_force(h_comp)
                     projectile.add_collision(proj_col)
                     projectile.oncollide = projectile_collide
@@ -282,11 +283,11 @@ def create_item(pos):
     if rand % 2 == 0:
         
         
-        item = Object(pos[0], pos[1], 32, 32,inst, 'item1')
+        item = Object(pos[0], pos[1]-20, 24, 24,inst, 'item1')
         
         item.set_img('item.png')
     else:
-        item = Object(pos[0], pos[1], 32, 32,inst, 'item2')
+        item = Object(pos[0], pos[1]-20, 24, 24,inst, 'item2')
         
         item.set_img('potions1.png')
         
@@ -297,7 +298,7 @@ def create_item(pos):
 def create_potion(pos):
     gravity = Force(AXIS_Y, -1, 3, 'gravity')
     colision = Collision(inst)
-    potion = Object(pos[0], pos[1], 32, 32,inst, 'potion')
+    potion = Object(pos[0], pos[1]-20, 24,24,inst, 'potion')
     
     potion.set_img('potions.png')
     potion.add_force(gravity)
@@ -386,7 +387,7 @@ def first_level(window):
     gravity = Force(AXIS_Y, -1, 10, 'gravity')
     colision = Collision(inst)
     # CHÃO DO PRIMEIRO NIVEL
-    ground = Object(0, window.height - 51, window.width + 1400, 50, inst,'ground', img='terrain.png')
+    ground = Object(0, window.height - 51, window.width * 3, 50, inst,'ground', img='terrain.png')
     
     ground2 = Object(ground.width + 50, window.height - 51,
                      window.width + 700, 50,inst, 'ground', img='terrain.png')
@@ -408,21 +409,21 @@ def first_level(window):
     platform3 = Object(platform2.pos_x + platform2.width,
                        350, 270, 20,inst, 'platform', img='Group.png')
     platform4 = Object(platform3.pos_x + platform3.width +
-                       50, platform3.pos_y, 170, 20,inst, 'platform', img='Group.png')
+                       50, 200, 170, 20,inst, 'platform', img='Group.png')
     platform5 = Object(platform4.pos_x + platform4.width -
                        50, platform2.pos_y, 50, 20,inst, 'platform', img='Group.png')
-    platform6 = Object(platform5.pos_x + 3 * platform5.width,
-                       platform5.pos_y, 100, 20, inst,'platform', img='Group.png')
+    platform6 = Object(platform3.pos_x + 3 * platform3.width,
+                       200, 100, 20, inst,'platform', img='Group.png')
     platform7 = Object(ground3.pos_x + ground3.width/2,
-                       platform2.pos_y, 50, 20, inst,'platform', img='Group.png')
+                       platform6.pos_y - 50, 50, 20, inst,'platform', img='Group.png')
     platform8 = Object(platform7.pos_x + platform7.width,
-                       platform3.pos_y, 200, 20,inst, 'platform', img='Group.png')
+                       100, 200, 20,inst, 'platform', img='Group.png')
     platform9 = Object(platform8.pos_x + platform8.width *
                        2, platform8.pos_y, 200, 20, inst,'platform', img='Group.png')
     platform10 = Object(platform9.pos_x + platform9.width,
                         platform3.pos_y - 70, 300, 20, inst,'platform', img='Group.png')
     platform11 = Object(platform10.pos_x + platform10.width +
-                        100, platform.pos_y, 300, 20, inst,'platform', img='Group.png')
+                        100, 300, 300, 20, inst,'platform', img='Group.png')
 
     inst.add_obj(platform)
     inst.add_obj(platform2)
@@ -455,10 +456,16 @@ def first_level(window):
     targ11 = Object(ground3.pos_x + 700, platform3.pos_y - 48, 44, 100,inst, 'enemy')
     targ12 = Object(ground3.pos_x + 800, platform3.pos_y - 48, 44, 100,inst, 'enemy')
     targ13 = Object(ground3.pos_x + 900, platform3.pos_y - 48, 44, 100,inst, 'enemy')
-    targ14 = Object(ground3.pos_x + 1000, platform3.pos_y - 48, 44, 100,inst, 'enemy')
-    targ15 = Object(ground3.pos_x + 1100, platform3.pos_y - 48, 44, 100,inst, 'enemy')
-    targ16 = Object(ground3.pos_x + 1200, platform3.pos_y - 48, 44, 100,inst, 'enemy')
-    targ17 = Object(ground3.pos_x + 1300, platform3.pos_y - 48, 44, 100,inst, 'enemy')
+    targ14 = Object(ground3.pos_x + 1100, platform3.pos_y - 48, 44, 100,inst, 'enemy')
+    targ15 = Object(ground3.pos_x + 1300, platform3.pos_y - 48, 44, 100,inst, 'enemy')
+    targ16 = Object(ground3.pos_x + 1500, platform3.pos_y - 48, 44, 100,inst, 'enemy')
+    targ17 = Object(ground3.pos_x + 1600, platform3.pos_y - 48, 44, 100,inst, 'enemy')
+    targ18 = Object(ground3.pos_x + 1832, 100 - 48, 44, 100,inst, 'enemy')
+    targ19 = Object(ground3.pos_x + 2030, 15, 44, 100,inst, 'enemy')
+    targ20 = Object(ground3.pos_x + 2200, 150 - 48, 44, 100,inst, 'enemy')
+    targ21 = Object(ground3.pos_x + 2500, 300- 48, 44, 100,inst, 'enemy')
+    targ22 = Object(ground3.pos_x + 2400, 200 - 48, 44, 100,inst, 'enemy')
+    targ23 = Object(ground3.pos_x + 2300, platform3.pos_y - 48, 44, 100,inst, 'enemy')
     
     targ1.add_collision(colision)
     targ2.add_collision(colision)
@@ -477,6 +484,12 @@ def first_level(window):
     targ15.add_collision(colision)
     targ16.add_collision(colision)
     targ17.add_collision(colision)
+    targ18.add_collision(colision)
+    targ19.add_collision(colision)
+    targ20.add_collision(colision)
+    targ21.add_collision(colision)
+    targ22.add_collision(colision)
+    targ23.add_collision(colision)
     
     targ1.add_force(gravity)
     targ2.add_force(gravity)
@@ -495,6 +508,12 @@ def first_level(window):
     targ15.add_force(gravity)
     targ16.add_force(gravity)
     targ17.add_force(gravity)
+    targ18.add_force(gravity)
+    targ19.add_force(gravity)
+    targ20.add_force(gravity)
+    targ21.add_force(gravity)
+    targ22.add_force(gravity)
+    targ23.add_force(gravity)
 
 
     inst.add_obj(targ3)
@@ -512,7 +531,16 @@ def first_level(window):
     inst.add_obj(targ15)
     inst.add_obj(targ16)
     inst.add_obj(targ17)
+    inst.add_obj(targ18)
+    inst.add_obj(targ19)
+    inst.add_obj(targ20)
+    inst.add_obj(targ21)
+    inst.add_obj(targ22)
+    inst.add_obj(targ23)
     
+    trophy = Object(ground4.pos_x + ground4.width - 100, ground4.pos_y - 65, 52, 52, inst, 'trophy', 'trophy.png')
+    
+    inst.add_obj(trophy)
 
 
 def main():
@@ -520,8 +548,7 @@ def main():
     global life
     global score
     
-    
-    update_interval = 40
+    update_interval = 30
     tick_rate = 0
 
     w = Window('1st Game :D', update, update_interval, tick_rate)
@@ -532,13 +559,13 @@ def main():
     
     gravity = Force(AXIS_Y, -1, 10, 'gravity')
 
-    ground = Object(0, w.height - 51, w.width + 1000, 50,inst, 'ground')
-    player = Object(90, 300, 32, 32,inst, 'player')
+    
+    player = Object(90, 300, 48, 48,inst, 'player')
     player.set_keypressevent(keyPressEvent)
     player.set_keyreleaseevent(keyReleaseEvent)
     # player.set_mousepressevent(player_mousepressevent)
     player.set_img("char/idle/Idle (1).png")
-    arm = Object(player.pos_x, player.pos_y, 50, 1, inst)
+    
 
     lifetxt = Object(10, 15, 100, 50, inst, id='life')
     lifetxt.set_text('Lifes: ' + str(life))
@@ -560,8 +587,7 @@ def main():
     player.add_collision(col)
     player.add_force(gravity)
     player.oncollide = player_collide
-
-    # w.set_mainlayer(l)
+    
     w.show()
 
 
