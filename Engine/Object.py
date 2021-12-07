@@ -3,7 +3,7 @@ AXIS_Y = 1
 
 
 class Object(object):
-    def __init__(self, pos_x, pos_y, width, height, id=None):
+    def __init__(self, pos_x, pos_y, width, height,parent , id=None):
         self.width = width
         self.height = height
         self.pos_x = pos_x
@@ -18,6 +18,9 @@ class Object(object):
         self.id = id
         self.img = None
         self.state = "idle"
+        self.parent = parent
+        self.side = -1
+        self.timer = 20
 
         self.firstrelease = False
         self.keylist = []
@@ -44,6 +47,11 @@ class Object(object):
         self.img = img
 
     def move(self, axis, value):
+        
+        
+        print(self.parent)
+        if self.pos_y >= self.parent.width - 51:
+            return
         if axis == AXIS_X:
             self.pos_x += value
         if axis == AXIS_Y:

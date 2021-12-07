@@ -36,6 +36,7 @@ class Window(object):
         self.main_timer.setInterval(self.update_interval)
         self.main_timer.timeout.connect(self.timerCallback)
         self.main_timer.start()
+        
 
         self.w.setLayout(self.layout)
 
