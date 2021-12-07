@@ -17,6 +17,7 @@ class Object(object):
         self.oncollide = None
         self.id = id
         self.img = None
+        self.state = "idle"
 
         self.firstrelease = False
         self.keylist = []
@@ -91,3 +92,5 @@ class Object(object):
                     if fd[1] is f:
                         self.dforces.remove(fd)
             self.move(f.axis, f.mag)
+            
+    

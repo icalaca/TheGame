@@ -21,9 +21,44 @@ jumps = 0
 life = 3
 firstrelease = False
 PLAYER_SPEED = 10
-
-
+frame = 1
+def animate():
+    global frame
+    for obj in inst.objs:
+        if obj.id == "projectile":
+            if obj.state == 'shot':
+                frame += 1
+                if frame > 4:
+                    frame = 1
+                obj.set_img('char/bullet/Bullet_00'+str(frame)+'.png')
+        if obj.id == "player":
+            if obj.state == "idle":
+                frame += 1
+                if frame > 10:
+                    frame = 1
+                obj.set_img('char/idle/Idle ('+str(frame)+').png')
+            elif obj.state == "runLeft":
+                frame += 1
+                if frame > 8:
+                    frame = 1
+                obj.set_img('char/runLeft/Run ('+str(frame)+').png')
+            elif obj.state == "runRight":
+                frame += 1
+                if frame > 8:
+                    frame = 1
+                obj.set_img('char/runRight/Run ('+str(frame)+').png')
+            elif obj.state == "jump":
+                frame += 1
+                if frame > 10:
+                    frame = 1
+                obj.set_img('char/jump/Jump ('+str(frame)+').png')    
+            elif obj.state == "dead":
+                frame += 1
+                if frame > 10:
+                    frame = 1
+                obj.set_img('char/dead/Dead ('+str(frame)+').png')    
 def update(layer):
+    animate()
     global able_to_shoot
     global shoot_cooldown
     global jump_limit
@@ -35,12 +70,19 @@ def update(layer):
                 able_to_shoot = True
     for o in inst.objs:
         if o.id == 'player':
+            if len(keys_pressed) == 0:
+                if jumps == 0:
+                    o.state = 'idle'
             global dx, dy
             if Qt.Key_A in keys_pressed:
+                if jumps == 0:
+                    o.state = 'runLeft'
                 if o.pos_x <= 0:
                     return
                 dx -= PLAYER_SPEED
             if Qt.Key_D in keys_pressed:
+                if jumps == 0:
+                    o.state = 'runRight'
                 if o.pos_x >= inst.width*0.5:
                     for obj in inst.objs:
                         if obj.id != 'player' and obj.id != 'potion':
@@ -61,6 +103,7 @@ def update(layer):
                 else:
                     dx += PLAYER_SPEED
             if Qt.Key_W in keys_pressed:
+                o.state = 'jump'
                 if jumps < jump_limit:
                     print('jump')
                     jump = Force(AXIS_Y, 20, -7, 'jump')
@@ -75,7 +118,8 @@ def update(layer):
                 
                 if able_to_shoot:
                     proj_col = Collision(inst)
-                    projectile = Object(o.pos_x + o.width + 1, o.pos_y, 2, 2)
+                    projectile = Object(o.pos_x + o.width + 1, o.pos_y, 20, 20, 'projectile')
+                    projectile.state = 'shot'
                     h_comp = Force(AXIS_X, -1, 4, 'h_comp')
                     projectile.add_force(h_comp)
                     projectile.add_collision(proj_col)
@@ -143,7 +187,8 @@ def create_potion(obj):
     # gravity = Force(AXIS_Y, -1, 3, 'gravity')
     # colision = Collision(inst)
 
-    potion = Object(obj.pos_x, obj.pos_y, 16, 32, 'potion')
+    potion = Object(obj.pos_x, obj.pos_y, 8, 8, 'potion')
+    potion.set_img('potions.png')
     # potion.add_force(gravity)
     # potion.add_collision(colision)
     inst.add_obj(potion)
@@ -356,7 +401,7 @@ def first_level(window):
 
 
 def main():
-    update_interval = 30
+    update_interval = 40
     tick_rate = 0
 
     w = Window('1st Game :D', update, update_interval, tick_rate)
@@ -371,7 +416,7 @@ def main():
     player.set_keypressevent(keyPressEvent)
     player.set_keyreleaseevent(keyReleaseEvent)
     player.set_mousepressevent(player_mousepressevent)
-
+    player.set_img("char/idle/Idle (1).png")
     arm = Object(player.pos_x, player.pos_y, 50, 1)
 
     global inst
