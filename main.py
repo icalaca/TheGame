@@ -94,12 +94,14 @@ def update(layer):
     for o in inst.objs:
         if o.id == 'enemy':
             if o.timer == 0:
-                o.timer = random.randint(17, 35)
+                o.timer = random.randint(10, 40)
                 o.side = o.side * -1
             if o.side == -1:
+                o.state = 'walkLeft'
                 o.move(AXIS_X, -3)
                 o.timer -= 1
             else:
+                o.state = 'walkRight'
                 o.move(AXIS_X, 3)
                 o.timer -= 1
                 
