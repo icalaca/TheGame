@@ -3,7 +3,7 @@ AXIS_Y = 1
 
 
 class Object(object):
-    def __init__(self, pos_x, pos_y, width, height,parent , id=None, img=None):
+    def __init__(self, pos_x, pos_y, width, height,parent , id=None, img=None, collision=None):
         self.width = width
         self.height = height
         self.pos_x = pos_x

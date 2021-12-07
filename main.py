@@ -1,4 +1,5 @@
 import sys
+import time
 import math
 import random
 from typing import Set
@@ -9,6 +10,7 @@ from Engine.Physics.Collision import *
 from Engine.Physics.Force import *
 from PyQt5.QtWidgets import QApplication
 #import keyboard
+
 
 score = 0
 cd = 50
@@ -103,7 +105,7 @@ def update(layer):
                 
         if o.id == 'player':
             if o.pos_y > inst.height:
-                print('perdeu')
+                gameover = True
             if len(keys_pressed) == 0:
                 if jumps == 0:
                     o.state = 'idle'
@@ -119,19 +121,19 @@ def update(layer):
                     o.state = 'runRight'
                 if o.pos_x >= inst.width*0.5:
                     for obj in inst.objs:
-                        if obj.id == 'life':
+                        if obj.id == 'life' or obj.id == 'score':
+                            obj.pos_x = 10
                             continue
                         if obj.id != 'player' and obj.id != 'potion' and obj.id != 'item1' and obj.id != 'item2':
 
                             obj.pos_x -= 3
                             if o.collision is not None:
                                 check = o.collision.check(o)
-                                print('check')
-                                print(check)
+                                
                                 if check is not None:
-                                    print('xavasca')
+                                    
                                     if o.oncollide is not None:
-                                        print('xoxota')
+                                       
                                         o.oncollide(o, check)
                                     h_collision = True
                                     obj.pos_x += 3
@@ -141,14 +143,16 @@ def update(layer):
                         for obj in inst.objs:
                             if obj.id != 'player':
                                 obj.move(AXIS_X, -10)
+                                        
                     else:
                         h_collision = False
+                        return 
                 else:
                     dx += PLAYER_SPEED
             if Qt.Key_W in keys_pressed:
                 o.state = 'jump'
                 if jumps < jump_limit:
-                    # print('jump')
+                    
                     jump = Force(AXIS_Y, 15, -10, 'jump')
                     dforce = ('gravity', jump)
                     o.add_dforce(dforce)
@@ -174,7 +178,7 @@ def update(layer):
             if Qt.Key_Left in keys_pressed:
                 
                 if able_to_shoot:
-                    # print('entrou')
+                    
                     o.state = 'shot'
                     proj_col = Collision(inst)
                     projectile = Object(o.pos_x, o.pos_y, 20, 20,inst, 'projectile')
@@ -230,6 +234,8 @@ def update(layer):
             if Qt.Key_Enter in keys_pressed:
                 if gameover:
                     sys.exit()
+                    
+           
             o.move(AXIS_Y, dy)
             o.move(AXIS_X, dx)
             dx = 0
@@ -283,11 +289,11 @@ def create_item(pos):
     if rand % 2 == 0:
         
         
-        item = Object(pos[0], pos[1]-20, 24, 24,inst, 'item1')
+        item = Object(pos[0], pos[1]-20, 24, 24,inst, 'item1', collision=colision)
         
         item.set_img('item.png')
     else:
-        item = Object(pos[0], pos[1]-20, 24, 24,inst, 'item2')
+        item = Object(pos[0], pos[1]-20, 24, 24,inst, 'item2', collision=colision)
         
         item.set_img('potions1.png')
         
@@ -298,7 +304,7 @@ def create_item(pos):
 def create_potion(pos):
     gravity = Force(AXIS_Y, -1, 3, 'gravity')
     colision = Collision(inst)
-    potion = Object(pos[0], pos[1]-20, 24,24,inst, 'potion')
+    potion = Object(pos[0], pos[1]-20, 24,24,inst, 'potion', collision=colision)
     
     potion.set_img('potions.png')
     potion.add_force(gravity)
@@ -309,7 +315,7 @@ def create_potion(pos):
 def projectile_collide(obj1, obj2):
     global inst
     global score
-    # print(obj1.id)
+    
     if obj1 in inst.objs:
         inst.objs.remove(obj1)
     if obj2.id == 'enemy':
@@ -331,37 +337,36 @@ def projectile_collide(obj1, obj2):
 
 
 def player_collide(obj1, obj2):
-    print('obj1')
-    print(obj1.id)
-    print('obj2')
-    print(obj2.id)
+    
     global jumps
     global jump_limit
     global life
     global cd
     global gameover
 
-    # print(obj1.id)
+    
     if (obj2.id == 'platform' or obj2.id == 'ground' or obj2.id == 'obstacle') and jumps > 0:
         if obj2.id == 'ground':
             jumps = 0
         if (obj1.pos_x > obj2.pos_x and obj1.pos_x < obj2.pos_x + obj2.width) and (obj1.pos_y < obj2.pos_y):
-            # print('ei')
+            
+            
             jumps = 0
     if obj2.id == 'potion':
-        # print('colisão com a poção')
+        global lifetxt
         life += 1
+        lifetxt.set_text('Lifes: ' + str(life))
         inst.objs.remove(obj2)
     if obj2.id == 'item2':
         jump_limit +=1
         inst.objs.remove(obj2)
     if obj2.id == 'item1':
-        # print('item')
+        
         if cd > 10:
             cd = cd/2
         inst.objs.remove(obj2)
     if obj2.id == 'enemy':
-        # print('enemy')
+        
         life -= 1
         for o in inst.objs:
             if o.id == 'life':
@@ -371,9 +376,12 @@ def player_collide(obj1, obj2):
         if life == 0:
             gameover = True
             gameovertxt = Object(inst.width//2, inst.height//2, 100, 50, inst, id='gameover')
-            gameovertxt.set_text('GAME OVER! PRESS ENTER TO EXIT.')
+            gameovertxt.set_text('GAME OVER!')
             gameovertxt.set_textsize(30)
-            # sys.exit()
+            inst.add_obj(gameovertxt)
+            
+            time.sleep(2)
+            sys.exit()
 
 
 
@@ -396,6 +404,7 @@ def first_level(window):
                      window.height - 51, window.width + 1400, 50,inst, 'ground', img='terrain.png')
     ground4 = Object(ground.width + 50 + ground2.width + 50 + ground3.width +
                      50, window.height - 51, window.width + 1400, 50,inst, 'ground', img='terrain.png')
+    
     
     inst.add_obj(ground)
     inst.add_obj(ground2)
@@ -438,34 +447,34 @@ def first_level(window):
     inst.add_obj(platform11)
     
 
-    targ1 = Object(700, 300, 44, 100,inst, 'enemy')
+    targ1 = Object(700, 300, 44, 90,inst, 'enemy')
     
     inst.add_obj(targ1)
     
-    targ2 = Object(1100, 300, 44, 100,inst, 'enemy')
+    targ2 = Object(1100, 300, 44, 90,inst, 'enemy')
     inst.add_obj(targ2)
 
-    targ3 = Object(1400, 300, 44, 100,inst, 'enemy')
-    targ4 = Object(1450, 300, 44, 100,inst, 'enemy')
-    targ5 = Object(platform3.pos_x + 50, platform3.pos_y - 48, 44, 100,inst, 'enemy')
-    targ6 = Object(platform3.pos_x + 100, platform3.pos_y - 48, 44, 100, inst,'enemy')
-    targ7 = Object(ground3.pos_x + 5, platform3.pos_y - 48, 44, 100,inst, 'enemy')
-    targ8 = Object(ground3.pos_x + 130, platform3.pos_y - 48, 44, 100,inst, 'enemy')
-    targ9 = Object(ground3.pos_x + 300, platform3.pos_y - 48, 44, 100,inst, 'enemy')
-    targ10 = Object(ground3.pos_x + 480, platform3.pos_y - 200, 44, 100,inst, 'enemy')
-    targ11 = Object(ground3.pos_x + 700, platform3.pos_y - 48, 44, 100,inst, 'enemy')
-    targ12 = Object(ground3.pos_x + 800, platform3.pos_y - 48, 44, 100,inst, 'enemy')
-    targ13 = Object(ground3.pos_x + 900, platform3.pos_y - 48, 44, 100,inst, 'enemy')
-    targ14 = Object(ground3.pos_x + 1100, platform3.pos_y - 48, 44, 100,inst, 'enemy')
-    targ15 = Object(ground3.pos_x + 1300, platform3.pos_y - 48, 44, 100,inst, 'enemy')
-    targ16 = Object(ground3.pos_x + 1500, platform3.pos_y - 48, 44, 100,inst, 'enemy')
-    targ17 = Object(ground3.pos_x + 1600, platform3.pos_y - 48, 44, 100,inst, 'enemy')
-    targ18 = Object(ground3.pos_x + 1832, 100 - 48, 44, 100,inst, 'enemy')
-    targ19 = Object(ground3.pos_x + 2030, 15, 44, 100,inst, 'enemy')
-    targ20 = Object(ground3.pos_x + 2200, 150 - 48, 44, 100,inst, 'enemy')
-    targ21 = Object(ground3.pos_x + 2500, 300- 48, 44, 100,inst, 'enemy')
-    targ22 = Object(ground3.pos_x + 2400, 200 - 48, 44, 100,inst, 'enemy')
-    targ23 = Object(ground3.pos_x + 2300, platform3.pos_y - 48, 44, 100,inst, 'enemy')
+    targ3 = Object(1400, 300, 44, 90,inst, 'enemy')
+    targ4 = Object(1450, 300, 44, 90,inst, 'enemy')
+    targ5 = Object(platform3.pos_x + 50, platform3.pos_y - 48, 44, 90,inst, 'enemy')
+    targ6 = Object(platform3.pos_x + 100, platform3.pos_y - 48, 44, 90, inst,'enemy')
+    targ7 = Object(ground3.pos_x + 5, platform3.pos_y - 48, 44, 90,inst, 'enemy')
+    targ8 = Object(ground3.pos_x + 130, platform3.pos_y - 48, 44, 90,inst, 'enemy')
+    targ9 = Object(ground3.pos_x + 300, platform3.pos_y - 48, 44, 90,inst, 'enemy')
+    targ10 = Object(ground3.pos_x + 480, platform3.pos_y - 200, 44, 90,inst, 'enemy')
+    targ11 = Object(ground3.pos_x + 700, platform3.pos_y - 48, 44, 90,inst, 'enemy')
+    targ12 = Object(ground3.pos_x + 800, platform3.pos_y - 48, 44, 90,inst, 'enemy')
+    targ13 = Object(ground3.pos_x + 900, platform3.pos_y - 48, 44, 90,inst, 'enemy')
+    targ14 = Object(ground3.pos_x + 1100, platform3.pos_y - 48, 44, 90,inst, 'enemy')
+    targ15 = Object(ground3.pos_x + 1300, platform3.pos_y - 48, 44, 90,inst, 'enemy')
+    targ16 = Object(ground3.pos_x + 1500, platform3.pos_y - 48, 44, 90,inst, 'enemy')
+    targ17 = Object(ground3.pos_x + 1600, platform3.pos_y - 48, 44, 90,inst, 'enemy')
+    targ18 = Object(ground3.pos_x + 1832, 100 - 48, 44, 90,inst, 'enemy')
+    targ19 = Object(ground3.pos_x + 2030, 15, 44, 90,inst, 'enemy')
+    targ20 = Object(ground3.pos_x + 2200, 150 - 48, 44, 90,inst, 'enemy')
+    targ21 = Object(ground3.pos_x + 2500, 300- 48, 44, 90,inst, 'enemy')
+    targ22 = Object(ground3.pos_x + 2400, 200 - 48, 44, 90,inst, 'enemy')
+    targ23 = Object(ground3.pos_x + 2300, platform3.pos_y - 48, 44, 90,inst, 'enemy')
     
     targ1.add_collision(colision)
     targ2.add_collision(colision)
@@ -547,7 +556,7 @@ def main():
     global inst
     global life
     global score
-    
+    global lifetxt
     update_interval = 30
     tick_rate = 0
 
