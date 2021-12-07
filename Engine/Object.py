@@ -16,6 +16,7 @@ class Object(object):
         self.dforces = []
         self.oncollide = None
         self.id = id
+        self.img = None
 
         self.firstrelease = False
         self.keylist = []
@@ -37,6 +38,9 @@ class Object(object):
 
     def get_y(self):
         return self.pos_y
+
+    def set_img(self, img):
+        self.img = img
 
     def move(self, axis, value):
         if axis == AXIS_X:

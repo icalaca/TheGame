@@ -32,7 +32,10 @@ class Layer(QWidget):
 
     def draw_objects(self, event, qp):
         for o in self.objs:
-            qp.drawRect(o.pos_x, o.pos_y, o.width, o.height)
+            if o.img is not None:
+                qp.drawImage(o.pos_x, o.pos_y, QImage(o.img).scaledToWidth(48))
+            else:
+                qp.drawRect(o.pos_x, o.pos_y, o.width, o.height)
             # qp.drawImage(x, y, QImage('imgs/entities/%s.png' % (e.name.lower())).scaledToWidth(32))
 
     def paintEvent(self, event):
