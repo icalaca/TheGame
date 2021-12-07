@@ -148,7 +148,11 @@ def player_collide(obj1, obj2):
     global life
 
     if (obj2.id == 'platform' or obj2.id == 'ground' or obj2.id == 'obstacle') and jumps > 0:
-        jumps = 0
+        if obj2.id == 'ground':
+            jumps = 0
+        if (obj1.pos_x > obj2.pos_x and obj1.pos_x < obj2.pos_x + obj2.width) and (obj1.pos_y < obj2.pos_y):
+            print('ei')
+            jumps = 0
     if obj2.id == 'potion':
         print('colisão com a poção')
         life += 1
