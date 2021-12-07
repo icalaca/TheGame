@@ -10,6 +10,7 @@ from Engine.Physics.Force import *
 from PyQt5.QtWidgets import QApplication
 #import keyboard
 
+score = 0
 cd = 50
 shoot_cooldown = cd
 able_to_shoot = True
@@ -44,6 +45,8 @@ def animate():
                 obj.set_img('char/bulletLeft/Bullet_00'+str(frame)+'.png')
             if obj.state == 'shotUp':
                 obj.set_img('char/bulletUp/Bullet_00'+str(frame)+'.png')
+            if obj.state == 'shotDown':
+                obj.set_img('char/bulletDown/Bullet_00'+str(frame)+'.png')
         if obj.id == "player":
             if obj.state == "idle":
                 
@@ -114,11 +117,17 @@ def update(layer):
                     o.state = 'runRight'
                 if o.pos_x >= inst.width*0.5:
                     for obj in inst.objs:
-                        if obj.id != 'player' and obj.id != 'potion':
+                        if obj.id != 'player' and obj.id != 'potion' and obj.id != 'item1' and obj.id != 'item2':
                             obj.pos_x -= 3
                             if o.collision is not None:
                                 check = o.collision.check(o)
+                                print('check')
+                                print(check)
                                 if check is not None:
+                                    print('xavasca')
+                                    if o.oncollide is not None:
+                                        print('xoxota')
+                                        o.oncollide(o, check)
                                     h_collision = True
                                     obj.pos_x += 3
                                     break
@@ -134,7 +143,7 @@ def update(layer):
             if Qt.Key_W in keys_pressed:
                 o.state = 'jump'
                 if jumps < jump_limit:
-                    print('jump')
+                    # print('jump')
                     jump = Force(AXIS_Y, 15, -10, 'jump')
                     dforce = ('gravity', jump)
                     o.add_dforce(dforce)
@@ -148,7 +157,7 @@ def update(layer):
                 if able_to_shoot:
                     o.state = 'shot'
                     proj_col = Collision(inst)
-                    projectile = Object(o.pos_x, o.pos_y-100, 20, 20, inst, 'projectile')
+                    projectile = Object(o.pos_x, o.pos_y + 10, 20, 20, inst, 'projectile')
                     projectile.state = 'shotUp'
                     h_comp = Force(AXIS_Y, -1, -8, 'h_comp')
                     projectile.add_force(h_comp)
@@ -160,10 +169,10 @@ def update(layer):
             if Qt.Key_Left in keys_pressed:
                 
                 if able_to_shoot:
-                    print('entrou')
+                    # print('entrou')
                     o.state = 'shot'
                     proj_col = Collision(inst)
-                    projectile = Object(o.pos_x - 25, o.pos_y, 20, 20,inst, 'projectile')
+                    projectile = Object(o.pos_x, o.pos_y, 20, 20,inst, 'projectile')
                     projectile.state = 'shotLeft'
                     h_comp = Force(AXIS_X, -10, -8, 'i_comp')
                     projectile.add_force(h_comp)
@@ -181,6 +190,21 @@ def update(layer):
                     projectile = Object(o.pos_x + o.width + 1, o.pos_y, 20, 20,inst, 'projectile')
                     projectile.state = 'shotRight'
                     h_comp = Force(AXIS_X, -1, 8, 'h_comp')
+                    projectile.add_force(h_comp)
+                    projectile.add_collision(proj_col)
+                    projectile.oncollide = projectile_collide
+                    able_to_shoot = False
+                    shoot_cooldown = cd
+                    inst.add_obj(projectile)
+                    
+            if Qt.Key_Down in keys_pressed:
+                
+                if able_to_shoot:
+                    o.state = 'shot'
+                    proj_col = Collision(inst)
+                    projectile = Object(o.pos_x + o.width + 1, o.pos_y, 20, 20,inst, 'projectile')
+                    projectile.state = 'shotDown'
+                    h_comp = Force(AXIS_Y, -1, 8, 'h_comp')
                     projectile.add_force(h_comp)
                     projectile.add_collision(proj_col)
                     projectile.oncollide = projectile_collide
@@ -224,8 +248,7 @@ def keyReleaseEvent(event, o):
     # del keylist[-1]
 
 
-def processmultikeys(keyspressed):
-    print(keyspressed)
+
 
 
 def key_pressevent(event):
@@ -248,9 +271,18 @@ def mousepress_event(event):
 def create_item(pos):
     gravity = Force(AXIS_Y, -1, 3, 'gravity')
     colision = Collision(inst)
-    item = Object(pos[0], pos[1], 32, 32,inst, 'item')
-    
-    item.set_img('item.png')
+    rand = random.randint(0, 5)
+    if rand % 2 == 0:
+        
+        
+        item = Object(pos[0], pos[1], 32, 32,inst, 'item1')
+        
+        item.set_img('item.png')
+    else:
+        item = Object(pos[0], pos[1], 32, 32,inst, 'item2')
+        
+        item.set_img('potions1.png')
+        
     item.add_force(gravity)
     item.add_collision(colision)
     inst.add_obj(item)
@@ -268,11 +300,12 @@ def create_potion(pos):
 
 def projectile_collide(obj1, obj2):
     global inst
-    
-    print(obj1.id)
+    global score
+    # print(obj1.id)
     if obj1 in inst.objs:
         inst.objs.remove(obj1)
     if obj2.id == 'enemy':
+        score += 100
         inst.objs.remove(obj2)
         rand = random.randint(0, 100)
         if rand < 5:
@@ -286,26 +319,36 @@ def projectile_collide(obj1, obj2):
 
 
 def player_collide(obj1, obj2):
+    print('obj1')
+    print(obj1.id)
+    print('obj2')
+    print(obj2.id)
     global jumps
+    global jump_limit
     global life
     global cd
 
+    # print(obj1.id)
     if (obj2.id == 'platform' or obj2.id == 'ground' or obj2.id == 'obstacle') and jumps > 0:
         if obj2.id == 'ground':
             jumps = 0
         if (obj1.pos_x > obj2.pos_x and obj1.pos_x < obj2.pos_x + obj2.width) and (obj1.pos_y < obj2.pos_y):
-            print('ei')
+            # print('ei')
             jumps = 0
     if obj2.id == 'potion':
-        print('colisão com a poção')
+        # print('colisão com a poção')
         life += 1
         inst.objs.remove(obj2)
-    if obj2.id == 'item':
-        print('item')
-        cd = cd/2
+    if obj2.id == 'item2':
+        jump_limit +=1
+        inst.objs.remove(obj2)
+    if obj2.id == 'item1':
+        # print('item')
+        if cd > 10:
+            cd = cd/2
         inst.objs.remove(obj2)
     if obj2.id == 'enemy':
-        print('enemy')
+        # print('enemy')
         life -= 1
         inst.objs.remove(obj2)
         if life == 0:
@@ -323,40 +366,43 @@ def first_level(window):
     gravity = Force(AXIS_Y, -1, 10, 'gravity')
     colision = Collision(inst)
     # CHÃO DO PRIMEIRO NIVEL
-    ground = Object(0, window.height - 51, window.width + 1400, 50, inst,'ground')
+    ground = Object(0, window.height - 51, window.width + 1400, 50, inst,'ground', img='terrain.png')
+    
     ground2 = Object(ground.width + 50, window.height - 51,
-                     window.width/3 + 100, 50,inst, 'ground')
+                     window.width + 700, 50,inst, 'ground', img='terrain.png')
+    # ground2.set_img = "/Users/enriquebozzadutra/Documents/TheGame/terrain.png"
     ground3 = Object(ground.width + 50 + ground2.width + 50,
-                     window.height - 51, window.width + 1400, 50,inst, 'ground')
+                     window.height - 51, window.width + 1400, 50,inst, 'ground', img='terrain.png')
     ground4 = Object(ground.width + 50 + ground2.width + 50 + ground3.width +
-                     50, window.height - 51, window.width + 1400, 50,inst, 'ground')
+                     50, window.height - 51, window.width + 1400, 50,inst, 'ground', img='terrain.png')
+    
     inst.add_obj(ground)
     inst.add_obj(ground2)
     inst.add_obj(ground3)
     inst.add_obj(ground4)
 
     # PLATAFORMAS
-    platform = Object(760, 430, 100, 20,inst, 'platform')
+    platform = Object(760, 430, 100, 20,inst, 'platform', img='Group.png')
     platform2 = Object(ground.width + 50 + ground2.width /
-                       3, 430, 100, 20, inst,'platform')
+                       3, 430, 100, 20, inst,'platform', img='Group.png')
     platform3 = Object(platform2.pos_x + platform2.width,
-                       350, 270, 20,inst, 'platform')
+                       350, 270, 20,inst, 'platform', img='Group.png')
     platform4 = Object(platform3.pos_x + platform3.width +
-                       50, platform3.pos_y, 170, 20,inst, 'platform')
+                       50, platform3.pos_y, 170, 20,inst, 'platform', img='Group.png')
     platform5 = Object(platform4.pos_x + platform4.width -
-                       50, platform2.pos_y, 50, 20,inst, 'platform')
+                       50, platform2.pos_y, 50, 20,inst, 'platform', img='Group.png')
     platform6 = Object(platform5.pos_x + 3 * platform5.width,
-                       platform5.pos_y, 100, 20, inst,'platform')
+                       platform5.pos_y, 100, 20, inst,'platform', img='Group.png')
     platform7 = Object(ground3.pos_x + ground3.width/2,
-                       platform2.pos_y, 50, 20, inst,'platform')
+                       platform2.pos_y, 50, 20, inst,'platform', img='Group.png')
     platform8 = Object(platform7.pos_x + platform7.width,
-                       platform3.pos_y, 200, 20,inst, 'platform')
+                       platform3.pos_y, 200, 20,inst, 'platform', img='Group.png')
     platform9 = Object(platform8.pos_x + platform8.width *
-                       2, platform8.pos_y, 200, 20, inst,'platform')
+                       2, platform8.pos_y, 200, 20, inst,'platform', img='Group.png')
     platform10 = Object(platform9.pos_x + platform9.width,
-                        platform3.pos_y - 70, 300, 20, inst,'platform')
+                        platform3.pos_y - 70, 300, 20, inst,'platform', img='Group.png')
     platform11 = Object(platform10.pos_x + platform10.width +
-                        100, platform.pos_y, 300, 20, inst,'platform')
+                        100, platform.pos_y, 300, 20, inst,'platform', img='Group.png')
 
     inst.add_obj(platform)
     inst.add_obj(platform2)
@@ -369,9 +415,7 @@ def first_level(window):
     inst.add_obj(platform9)
     inst.add_obj(platform10)
     inst.add_obj(platform11)
-    obstacle = Object(900, window.height-100, 30, 100,inst, 'obstacle')
-    obstacle2 = Object(1300, window.height-120, 30, 100, inst,'obstacle')
-    obstacle3 = Object(1700, window.height-140, 30, 100,inst, 'obstacle')
+    
 
     targ1 = Object(700, 300, 44, 100,inst, 'enemy')
     
@@ -384,17 +428,17 @@ def first_level(window):
     targ4 = Object(1450, 300, 44, 100,inst, 'enemy')
     targ5 = Object(platform3.pos_x + 50, platform3.pos_y - 48, 44, 100,inst, 'enemy')
     targ6 = Object(platform3.pos_x + 100, platform3.pos_y - 48, 44, 100, inst,'enemy')
-    targ7 = Object(ground3.pos_x + 100, ground.pos_y - 48, 44, 100,inst, 'enemy')
-    targ8 = Object(ground3.pos_x + 200, ground.pos_y - 48, 44, 100,inst, 'enemy')
-    targ9 = Object(ground3.pos_x + 300, ground.pos_y - 48, 44, 100,inst, 'enemy')
-    targ10 = Object(ground3.pos_x + 400, ground.pos_y - 48, 44, 100,inst, 'enemy')
-    targ11 = Object(ground3.pos_x + 500, ground.pos_y - 48, 44, 100,inst, 'enemy')
-    targ12 = Object(ground3.pos_x + 600, ground.pos_y - 48, 44, 100,inst, 'enemy')
-    targ13 = Object(ground3.pos_x + 700, ground.pos_y - 48, 44, 100,inst, 'enemy')
-    targ14 = Object(ground3.pos_x + 800, ground.pos_y - 48, 44, 100,inst, 'enemy')
-    targ15 = Object(ground3.pos_x + 900, ground.pos_y - 48, 44, 100,inst, 'enemy')
-    targ16 = Object(ground3.pos_x + 1000, ground.pos_y - 48, 44, 100,inst, 'enemy')
-    targ17 = Object(ground3.pos_x + 1100, ground.pos_y - 48, 44, 100,inst, 'enemy')
+    targ7 = Object(ground3.pos_x + 5, platform3.pos_y - 48, 44, 100,inst, 'enemy')
+    targ8 = Object(ground3.pos_x + 130, platform3.pos_y - 48, 44, 100,inst, 'enemy')
+    targ9 = Object(ground3.pos_x + 300, platform3.pos_y - 48, 44, 100,inst, 'enemy')
+    targ10 = Object(ground3.pos_x + 480, platform3.pos_y - 200, 44, 100,inst, 'enemy')
+    targ11 = Object(ground3.pos_x + 700, platform3.pos_y - 48, 44, 100,inst, 'enemy')
+    targ12 = Object(ground3.pos_x + 800, platform3.pos_y - 48, 44, 100,inst, 'enemy')
+    targ13 = Object(ground3.pos_x + 900, platform3.pos_y - 48, 44, 100,inst, 'enemy')
+    targ14 = Object(ground3.pos_x + 1000, platform3.pos_y - 48, 44, 100,inst, 'enemy')
+    targ15 = Object(ground3.pos_x + 1100, platform3.pos_y - 48, 44, 100,inst, 'enemy')
+    targ16 = Object(ground3.pos_x + 1200, platform3.pos_y - 48, 44, 100,inst, 'enemy')
+    targ17 = Object(ground3.pos_x + 1300, platform3.pos_y - 48, 44, 100,inst, 'enemy')
     
     targ1.add_collision(colision)
     targ2.add_collision(colision)
@@ -447,9 +491,7 @@ def first_level(window):
     inst.add_obj(targ15)
     inst.add_obj(targ16)
     inst.add_obj(targ17)
-    inst.add_obj(obstacle)
-    inst.add_obj(obstacle2)
-    inst.add_obj(obstacle3)
+    
 
 
 def main():

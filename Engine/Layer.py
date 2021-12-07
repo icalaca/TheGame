@@ -33,6 +33,8 @@ class Layer(QWidget):
     def draw_objects(self, event, qp):
         for o in self.objs:
             if o.img is not None:
+                if o.id == 'ground' or o.id == 'platform' or o.id == 'obstacle':
+                    qp.drawImage(o.pos_x, o.pos_y, QImage(o.img).scaledToWidth(o.width))
                 qp.drawImage(o.pos_x, o.pos_y, QImage(o.img).scaledToWidth(48))
             else:
                 qp.drawRect(o.pos_x, o.pos_y, o.width, o.height)
