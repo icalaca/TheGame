@@ -6,7 +6,7 @@ from Engine.Object import *
 from Engine.Physics.Collision import *
 from Engine.Physics.Force import *
 from PyQt5.QtWidgets import QApplication
-import keyboard
+# import keyboard
 
 inst = None
 jump_limit = 2
@@ -83,7 +83,10 @@ def player_keypressevent(event, obj):
             obj.add_force(jump)
             jumps += 1
     if event.key() == Qt.Key_A:
+        if obj.pos_x <= 0:
+            return
         obj.move(AXIS_X, -3)
+        
     if event.key() == Qt.Key_S:
         obj.move(AXIS_Y, 3)
     if event.key() == Qt.Key_D:
@@ -127,7 +130,9 @@ def arm_mousepressevent(event, obj):
     for i in range(360):
         x = r*math.cos(math.radians(i))
 
-
+def first_level(window):
+    ground = Object(0, window.height - 51, window.width+ 1000, 50, 'ground')
+    inst.add_obj(ground)
 def main():
     update_interval = 30
     tick_rate = 0
@@ -167,22 +172,23 @@ def main():
     inst = w.mainlayer_instance()
     inst.add_obj(player)
     # inst.add_obj(arm)
-    inst.add_obj(ground)
-    inst.add_obj(targ1)
-    inst.add_obj(targ2)
-    inst.add_obj(targ3)
-    inst.add_obj(targ4)
-    inst.add_obj(targ5)
-    inst.add_obj(targ6)
-    inst.add_obj(targ7)
-    inst.add_obj(targ8)
-    inst.add_obj(targu1)
-    inst.add_obj(targu2)
-    inst.add_obj(targu3)
-    inst.add_obj(targu4)
-    inst.add_obj(box2)
-    inst.add_obj(box3)
-    inst.add_obj(box4)
+    
+    first_level(inst)
+    # inst.add_obj(targ1)
+    # inst.add_obj(targ2)
+    # inst.add_obj(targ3)
+    # inst.add_obj(targ4)
+    # inst.add_obj(targ5)
+    # inst.add_obj(targ6)
+    # inst.add_obj(targ7)
+    # inst.add_obj(targ8)
+    # inst.add_obj(targu1)
+    # inst.add_obj(targu2)
+    # inst.add_obj(targu3)
+    # inst.add_obj(targu4)
+    # inst.add_obj(box2)
+    # inst.add_obj(box3)
+    # inst.add_obj(box4)
     col = Collision(inst)
     player.add_collision(col)
     player.add_force(gravity)
