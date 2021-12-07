@@ -28,6 +28,7 @@ def update(layer):
     global shoot_cooldown
     global jump_limit
     global jumps
+    h_collision = False
     if not able_to_shoot:
             shoot_cooldown -= 1    
             if shoot_cooldown <= 0:
@@ -42,8 +43,21 @@ def update(layer):
             if Qt.Key_D in keys_pressed:
                 if o.pos_x >= inst.width*0.5:
                     for obj in inst.objs:
-                        if obj.id != 'player':
-                            obj.move(AXIS_X, -10)
+                        if obj.id != 'player' and obj.id != 'potion':
+                            obj.pos_x -= 3
+                            if o.collision is not None:
+                                check = o.collision.check(o)
+                                if check is not None:
+                                    h_collision = True
+                                    obj.pos_x += 3
+                                    break
+                            obj.pos_x += 3
+                    if not h_collision:
+                        for obj in inst.objs:
+                            if obj.id != 'player':
+                                obj.move(AXIS_X, -10)
+                    else:
+                        h_collision = False
                 else:
                     dx += PLAYER_SPEED
             if Qt.Key_W in keys_pressed:
